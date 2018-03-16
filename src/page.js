@@ -1,21 +1,28 @@
 const cheerio = require('cheerio');
 const s = require('string');
 
-function trimPublishDate(str) {
-  return s(s(str.text()).splitLeft('(')[1]).chompRight(')').s;
-}
+const trim = {
+  publishDate(str) {
+    return s(s(str.text()).splitLeft('(')[1]).chompRight(')').s;
+  },
 
-function trimEdition(str) {
-  return s(s(str.text()).chompLeft('Publisher: ').splitLeft(';')[1]).splitLeft('edition')[0].trim();
-}
+  edition(str) {
+    const refined = s(str.text()).chompLeft('Publisher: ').splitLeft(';')[1];
+    if (refined === undefined) {
+      return '';
+    }
 
-function trimPublisher(str) {
-  return s(str.text()).chompLeft('Publisher: ').splitLeft(';')[0];
-}
+    return s(refined).splitLeft('edition')[0].trim();
+  },
 
-function trimPages(str) {
-  return s(str.text()).chompLeft('Paperback: ').chompRight(' pages').toInt();
-}
+  publisher(str) {
+    return s(str.text()).chompLeft('Publisher: ').splitLeft(';')[0];
+  },
+
+  pages(str) {
+    return s(str.text()).chompLeft('Paperback: ').chompRight(' pages').toInt();
+  },
+};
 
 function item(context) {
   const $ = cheerio.load(cheerio(context).html());
@@ -25,10 +32,10 @@ function item(context) {
     date: $('div.post-info > span.date').text(),
     img: $('.entry.clearfix > h3 > img').attr('src'),
     details: {
-      pages: trimPages($('.entry.clearfix > ul > li:nth-child(1)')),
-      publisher: trimPublisher(secondChild),
-      edition: trimEdition(secondChild),
-      datePublish: trimPublishDate(secondChild),
+      pages: trim.pages($('.entry.clearfix > ul > li:nth-child(1)')),
+      publisher: trim.publisher(secondChild),
+      edition: trim.edition(secondChild),
+      datePublish: trim.publishDate(secondChild),
       language: s($('.entry.clearfix > ul > li:nth-child(3)').text()).chompLeft('Language: ').s,
       isbn10: s($('.entry.clearfix > ul > li:nth-child(4)').text()).chompLeft('ISBN-10: ').s,
       isbn13: s($('.entry.clearfix > ul > li:nth-child(5)').text()).chompLeft('ISBN-13: ').s,
