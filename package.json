@@ -2,7 +2,7 @@
   "name": "wowscraper",
   "version": "1.0.0",
   "description": "A simpler JS site scraper for WoWEbooks",
-  "main": "index.js",
+  "main": "src/index.js",
   "repository": "https://github.com/sguzman/WoWEbooksScraper",
   "author": "Salvador Guzman <guzmansalv@gmail.com>",
   "license": "Unlicense",
